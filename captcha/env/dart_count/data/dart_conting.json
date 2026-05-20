@@ -1,0 +1,6 @@
+{
+  "image_list": ["image_1.png", "image_2.png", "image_3.png", "image_4.png", "image_5.png"],
+  "ground_truth_image_index": 2,
+  "arrow_box": [[480, 650, 620, 750], [780, 650, 920, 750]], 
+  "submit_box": [40, 620, 375, 750]
+}
