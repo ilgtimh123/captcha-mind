@@ -1,3 +1,4 @@
+# CaptchaMind
 ## Install from source
 
 ```bash
