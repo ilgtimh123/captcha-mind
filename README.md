@@ -14,7 +14,7 @@
 <p align="center">
   <img src="./captcha.png" alt="CaptchaBench task types" width="100%">
   <br>
-  <em>The eight CAPTCHA task types in CaptchaBench.</em>
+  The eight CAPTCHA task types in CaptchaBench.
 </p>
 
 ---
@@ -39,7 +39,8 @@
 
 ## 📢 News
 
-- **[2026-06]** Paper, model weights, and the CaptchaBench dataset are released. 🎉
+- **[2026-06]** We release the CaptchaBench dataset, evaluation code, and CaptchaMind-7B model weights. 🎉
+- **[2026-05]** Our paper is available on [arXiv](https://arxiv.org/abs/2605.19538).
 
 ---
 
@@ -57,7 +58,7 @@
 
 CaptchaMind is the first training-based CAPTCHA solver. We release **CaptchaBench** — 16,000 programmatically generated samples across 8 task types (2,000 train + 200 test each) with region- and process-level annotations — and a **CaptchaMind-7B** model (Qwen2.5-VL-7B), trained in two stages (SFT followed by GRPO-based RL with explicit supervision of intermediate region grounding). See the [paper](https://arxiv.org/abs/2605.19538) for method details.
 
-This repository provides the **CaptchaBench environments and evaluation harness**. Training code is on the [roadmap](#-roadmap).
+This repository provides the **CaptchaBench environments and evaluation harness**.
 
 ### Task types
 
@@ -283,4 +284,4 @@ This project is released under the [MIT License](./LICENSE).
 
 ## 🙏 Acknowledgements
 
-CaptchaMind is built on [Qwen2.5-VL](https://github.com/QwenLM/Qwen2.5-VL) and trained with the [GRPO](https://arxiv.org/abs/2402.03300) algorithm. Our task taxonomy is inspired by [OpenCaptchaWorld](https://github.com/MetaAgentX/OpenCaptchaWorld) (Luo et al., 2025). We thank the open-source community for the tooling that made this work possible.
+CaptchaMind is built on [Qwen2.5-VL](https://github.com/QwenLM/Qwen2.5-VL), and our RL training is based on the [verl](https://github.com/verl-project/verl) framework (with our own modifications) using the [GRPO](https://arxiv.org/abs/2402.03300) algorithm. Our task taxonomy is inspired by [OpenCaptchaWorld](https://github.com/MetaAgentX/OpenCaptchaWorld) (Luo et al., 2025). We thank the open-source community for the tooling that made this work possible.
