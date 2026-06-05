@@ -39,8 +39,8 @@
 
 ## 📢 News
 
-- **[2026-06]** We release the CaptchaBench dataset, evaluation code, and CaptchaMind-7B model weights. 🎉
-- **[2026-05]** Our paper is available on [arXiv](https://arxiv.org/abs/2605.19538).
+- **[2026-06-05]** We release the CaptchaBench dataset and CaptchaMind-7B model weights. 🎉
+- **[2026-05-20]** Our paper is available on [arXiv](https://arxiv.org/abs/2605.19538), along with the evaluation code.
 
 ---
 
