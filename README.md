@@ -4,6 +4,7 @@
 
 <p align="center">
   <a href="https://arxiv.org/abs/2605.19538"><img src="https://img.shields.io/badge/arXiv-2605.19538-b31b1b.svg" alt="arXiv"></a>
+  <a href="https://2026.emnlp.org/"><img src="https://img.shields.io/badge/EMNLP-2026%20Main-blueviolet" alt="EMNLP 2026 Main"></a>
   <a href="https://huggingface.co/AIDC-AI/CaptchaMind-7B"><img src="https://img.shields.io/badge/🤗%20Model-CaptchaMind--7B-blue" alt="Model"></a>
   <a href="https://huggingface.co/datasets/AIDC-AI/Captcha"><img src="https://img.shields.io/badge/🤗%20Dataset-CaptchaBench-orange" alt="Dataset"></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License"></a>
@@ -39,6 +40,7 @@
 
 ## 📢 News
 
+- **[2026-08-21]** 🎉 CaptchaMind has been accepted to the **EMNLP 2026 Main Conference**!
 - **[2026-06-05]** We release the CaptchaBench dataset and CaptchaMind-7B model weights. 🎉
 - **[2026-05-20]** Our paper is available on [arXiv](https://arxiv.org/abs/2605.19538), along with the evaluation code.
 
