@@ -3,10 +3,6 @@
 <h2 align="center">🎉🎉 Accepted to EMNLP 2026 Main Conference! 🎉🎉</h2>
 
 <p align="center">
-  <b>August 21, 2026</b>
-</p>
-
-<p align="center">
   <a href="https://arxiv.org/abs/2605.19538"><img src="https://img.shields.io/badge/arXiv-2605.19538-b31b1b.svg" alt="arXiv"></a>
   <a href="https://huggingface.co/AIDC-AI/CaptchaMind-7B"><img src="https://img.shields.io/badge/🤗%20Model-CaptchaMind--7B-blue" alt="Model"></a>
   <a href="https://huggingface.co/datasets/AIDC-AI/Captcha"><img src="https://img.shields.io/badge/🤗%20Dataset-CaptchaBench-orange" alt="Dataset"></a>
