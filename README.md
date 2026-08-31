@@ -1,4 +1,4 @@
-# [EMNLP 2026 Main] CaptchaMind: Training CAPTCHA Solvers via Reinforcement Learning with Explicit Reasoning Supervision
+# [EMNLP 2026] CaptchaMind: Training CAPTCHA Solvers via Reinforcement Learning with Explicit Reasoning Supervision
 
 <h2 align="center">🎉🎉 Accepted to EMNLP 2026 Main Conference! 🎉🎉</h2>
 
