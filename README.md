@@ -19,24 +19,6 @@
 
 ---
 
-## 📋 Table of Contents
-
-- [📢 News](#-news)
-- [🔗 Resources](#-resources)
-- [📖 Overview](#-overview)
-- [🏗 Project Structure](#-project-structure)
-- [⚙️ Installation](#-installation)
-- [📦 Dataset](#-dataset)
-- [🤖 Model & Inference Server](#-model--inference-server)
-- [🚀 Quick Start / Evaluation](#-quick-start--evaluation)
-- [📊 Results](#-results)
-- [🗺️ Roadmap](#-roadmap)
-- [📝 Citation](#-citation)
-- [📄 License](#-license)
-- [🙏 Acknowledgements](#-acknowledgements)
-
----
-
 ## 📢 News
 
 - **[2026-08-21]** 🎉 CaptchaMind has been accepted to the **EMNLP 2026 Main Conference**!
