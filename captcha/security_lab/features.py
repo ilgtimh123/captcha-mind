@@ -22,8 +22,19 @@ class MotionFeatures:
     inter_event_cv: float = 0.0
     long_gap_count: int = 0
     direction_changes: int = 0
+    stroke_count: int = 0
+    mean_stroke_points: float = 0.0
+    mean_stroke_straightness: float = 0.0
+    near_linear_stroke_fraction: float = 0.0
+    mean_stroke_turn_rad: float = 0.0
+    mean_stroke_step_cv: float = 0.0
     focus_loss_count: int = 0
     visibility_hidden_count: int = 0
+    automation_webdriver: bool = False
+    plugin_count: int = -1
+    language_count: int = -1
+    move_centroid_x: float = 0.0
+    move_centroid_y: float = 0.0
 
     def as_dict(self) -> Dict[str, Any]:
         return asdict(self)
@@ -61,6 +72,17 @@ def extract_motion_features(
     result.visibility_hidden_count = sum(
         1 for e in page if e.get("kind") == "visibility" and e.get("state") == "hidden"
     )
+    environment = next((e for e in reversed(page) if e.get("kind") == "environment"), None)
+    if environment is not None:
+        result.automation_webdriver = bool(environment.get("webdriver", False))
+        try:
+            result.plugin_count = int(environment.get("plugin_count", -1))
+        except (TypeError, ValueError):
+            result.plugin_count = -1
+        try:
+            result.language_count = int(environment.get("language_count", -1))
+        except (TypeError, ValueError):
+            result.language_count = -1
 
     timed = [(e, _time(e)) for e in events]
     timed = [(e, t) for e, t in timed if t is not None]
@@ -79,6 +101,9 @@ def extract_motion_features(
     move_events = [e for e in events if e.get("kind") == "move" and _point(e) is not None]
     points = [_point(e) for e in move_events]
     points = [p for p in points if p is not None]
+    if points:
+        result.move_centroid_x = sum(p[0] for p in points) / len(points)
+        result.move_centroid_y = sum(p[1] for p in points) / len(points)
     speeds: List[float] = []
     vectors: List[Tuple[float, float]] = []
     if len(points) >= 2:
@@ -109,5 +134,74 @@ def extract_motion_features(
         delta = abs((b - a + math.pi) % (2.0 * math.pi) - math.pi)
         if delta > 0.35:
             result.direction_changes += 1
+
+    # Analyze each contiguous mouse-move stroke separately. Whole-attempt
+    # straightness can hide mechanical paths when a task contains several
+    # clicks in different directions; per-stroke geometry preserves that
+    # defensive signal without exposing any challenge ground truth.
+    strokes: List[List[Dict[str, Any]]] = []
+    current_stroke: List[Dict[str, Any]] = []
+    boundary_kinds = {"down", "mousedown", "up", "mouseup", "click"}
+    for event in events:
+        if event.get("kind") == "move" and _point(event) is not None:
+            current_stroke.append(event)
+            continue
+        if event.get("kind") in boundary_kinds:
+            if len(current_stroke) >= 2:
+                strokes.append(current_stroke)
+            current_stroke = []
+    if len(current_stroke) >= 2:
+        strokes.append(current_stroke)
+
+    stroke_straightness: List[float] = []
+    stroke_points: List[int] = []
+    stroke_turns: List[float] = []
+    stroke_step_cvs: List[float] = []
+    for stroke in strokes:
+        pts = [_point(event) for event in stroke]
+        pts = [point for point in pts if point is not None]
+        if len(pts) < 2:
+            continue
+        stroke_points.append(len(pts))
+        lengths: List[float] = []
+        headings: List[float] = []
+        for first, second in zip(pts, pts[1:]):
+            dx = second[0] - first[0]
+            dy = second[1] - first[1]
+            length = math.hypot(dx, dy)
+            if length > 0:
+                lengths.append(length)
+                headings.append(math.atan2(dy, dx))
+        path = sum(lengths)
+        displacement = math.hypot(pts[-1][0] - pts[0][0], pts[-1][1] - pts[0][1])
+        straightness = displacement / path if path > 0 else 0.0
+        stroke_straightness.append(straightness)
+
+        turn_values: List[float] = []
+        for a, b in zip(headings, headings[1:]):
+            turn_values.append(abs((b - a + math.pi) % (2.0 * math.pi) - math.pi))
+        stroke_turns.append(sum(turn_values) / len(turn_values) if turn_values else 0.0)
+
+        if lengths:
+            mean_length = sum(lengths) / len(lengths)
+            if mean_length > 0:
+                variance = sum((length - mean_length) ** 2 for length in lengths) / len(lengths)
+                stroke_step_cvs.append(math.sqrt(variance) / mean_length)
+            else:
+                stroke_step_cvs.append(0.0)
+
+    result.stroke_count = len(stroke_straightness)
+    if stroke_straightness:
+        result.mean_stroke_straightness = sum(stroke_straightness) / len(stroke_straightness)
+        result.near_linear_stroke_fraction = (
+            sum(1 for value in stroke_straightness if value >= 0.995)
+            / len(stroke_straightness)
+        )
+    if stroke_points:
+        result.mean_stroke_points = sum(stroke_points) / len(stroke_points)
+    if stroke_turns:
+        result.mean_stroke_turn_rad = sum(stroke_turns) / len(stroke_turns)
+    if stroke_step_cvs:
+        result.mean_stroke_step_cv = sum(stroke_step_cvs) / len(stroke_step_cvs)
 
     return result
