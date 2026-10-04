@@ -5,6 +5,7 @@ from captcha.env.slide_puzzle.data import load_data, get_image_path, get_tmp_fil
 from captcha.utils import *
 from captcha.utils.image_utils import *
 from captcha.data_types import EnvResetResponse, EnvResponse, Action
+from captcha.movement import MovementPlanner, action_to_movement_plan
 
 from typing import List, Dict, Any, Optional, Union, Callable, Tuple
 
@@ -21,6 +22,11 @@ class SlidePuzzleEnv(Env):
         )
         
         self.tolerance = 15
+        self.movement_planner = MovementPlanner(
+            interpolation_steps=8,
+            move_duration_ms=320,
+        )
+        self.last_movement_plan = None
         
         # 设置当前样本路径
         current_sample_data = self.task_data
@@ -52,6 +58,7 @@ class SlidePuzzleEnv(Env):
         self.task_index = task_index
         self.task_data = self.data[task_index]
         self.actions = []
+        self.last_movement_plan = None
 
         # 设置当前样本路径
         if '_sample_path' in self.task_data:
@@ -127,6 +134,18 @@ class SlidePuzzleEnv(Env):
         
         if action.name == 'drag':
             from_pos, to_pos = action.kwargs["from"], action.kwargs["to"]
+
+            # Expand the high-level drag into deterministic benchmark movement
+            # primitives. The environment stores the plan for inspection/replay;
+            # it does not control an operating-system pointer.
+            self.last_movement_plan = action_to_movement_plan(
+                action,
+                self.movement_planner,
+            )
+            print(
+                f"Movement plan generated: "
+                f"{len(self.last_movement_plan.steps)} steps"
+            )
             
             # 直接计算奖励，对比拖动的to_pos和真实目标位置
             gt_to_box = self.current_state["gt_to_box"]
