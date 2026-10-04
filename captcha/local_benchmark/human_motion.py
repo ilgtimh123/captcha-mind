@@ -1,6 +1,6 @@
 """Naturalistic pointer trajectories for the local benchmark only.
 
-This module is designed for the bundled loopback-only browser benchmark.  It
+This module is designed for the bundled loopback-only browser benchmark. It
 adds curvature plus an ease-in/ease-out velocity profile so benchmark runs can
 exercise realistic pointer event streams instead of teleporting the cursor.
 It is not an anti-detection or live-site bypass component.
@@ -47,6 +47,15 @@ class LocalHumanMotionPlanner:
             )
         return point
 
+    def _clamp_generated_point(self, point: Point) -> Point:
+        if self.bounds is None:
+            return point
+        left, top, right, bottom = self.bounds
+        return Point(
+            min(right, max(left, point.x)),
+            min(bottom, max(top, point.y)),
+        )
+
     @staticmethod
     def _bezier(
         p0: Tuple[float, float],
@@ -89,7 +98,7 @@ class LocalHumanMotionPlanner:
             ^ (end.y * 7_919)
         )
 
-        # A modest perpendicular bend.  The bounded magnitude keeps the path
+        # A modest perpendicular bend. The bounded magnitude keeps the path
         # plausible for UI testing without adding adversarial evasion logic.
         nx, ny = -dy / distance, dx / distance
         bend = distance * rng.uniform(0.06, 0.14)
@@ -117,7 +126,9 @@ class LocalHumanMotionPlanner:
                 (float(end.x), float(end.y)),
                 t,
             )
-            point = self._validate_point(Point(int(round(x)), int(round(y))))
+            point = self._clamp_generated_point(
+                Point(int(round(x)), int(round(y)))
+            )
             if not result or point != result[-1]:
                 result.append(point)
 
