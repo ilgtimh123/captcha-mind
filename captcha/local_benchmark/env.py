@@ -25,6 +25,11 @@ _SECURITY_TELEMETRY_JS = r"""
     t: performance.now(),
     ...extra
   });
+  push('environment', {
+    webdriver: navigator.webdriver === true,
+    plugin_count: navigator.plugins ? navigator.plugins.length : -1,
+    language_count: navigator.languages ? navigator.languages.length : -1
+  });
   window.addEventListener('focus', () => push('focus'));
   window.addEventListener('blur', () => push('blur'));
   document.addEventListener('visibilitychange', () => push('visibility', {state: document.visibilityState}));
