@@ -58,6 +58,22 @@ class BotRiskScorer:
         if features.move_count >= 6 and features.straightness >= 0.995:
             score += 12.0
             reasons.append("movement path is nearly perfectly straight")
+        if features.stroke_count >= 2 and features.near_linear_stroke_fraction >= 0.75:
+            score += 18.0
+            reasons.append("most pointer strokes are mechanically straight")
+        if features.stroke_count >= 2 and 0.0 < features.mean_stroke_points <= 10.0:
+            score += 10.0
+            reasons.append("pointer strokes use unusually sparse interpolation")
+        if features.stroke_count >= 2 and 0.0 <= features.mean_stroke_step_cv < 0.12:
+            score += 10.0
+            reasons.append("within-stroke step lengths are unusually uniform")
+        if (
+            features.stroke_count >= 2
+            and features.near_linear_stroke_fraction >= 0.5
+            and features.mean_stroke_turn_rad < 0.01
+        ):
+            score += 8.0
+            reasons.append("within-stroke heading changes are nearly absent")
         if features.move_count >= 8 and 0.0 < features.inter_event_cv < 0.025:
             score += 12.0
             reasons.append("event cadence is unusually uniform")
@@ -67,15 +83,28 @@ class BotRiskScorer:
         if features.down_count != features.up_count:
             score += 8.0
             reasons.append("unbalanced pointer down/up sequence")
+        if features.automation_webdriver:
+            score += 35.0
+            reasons.append("browser reports WebDriver automation")
 
+        # Cross-attempt repetition should be robust to scheduler/timing jitter.
+        # Build the signature from coarse spatial/motor geometry, not exact
+        # duration or cadence, so the same scripted path remains recognizable
+        # even when Chromium timing varies slightly between runs.
         signature = stable_digest({
             "moves": features.move_count,
             "downs": features.down_count,
             "ups": features.up_count,
-            "duration_bucket": int(features.duration_ms // 25.0),
-            "path_bucket": int(features.path_length_px // 10.0),
-            "straightness": round(features.straightness, 3),
-            "cadence": round(features.inter_event_cv, 3),
+            "path_bucket": int(features.path_length_px // 5.0),
+            "displacement_bucket": int(features.displacement_px // 5.0),
+            "straightness": round(features.straightness, 2),
+            "direction_changes": features.direction_changes,
+            "stroke_count": features.stroke_count,
+            "mean_stroke_points_bucket": int(features.mean_stroke_points // 2.0),
+            "near_linear_stroke_fraction": round(features.near_linear_stroke_fraction, 1),
+            "stroke_step_cv": round(features.mean_stroke_step_cv, 1),
+            "centroid_x_px": int(round(features.move_centroid_x)),
+            "centroid_y_px": int(round(features.move_centroid_y)),
         })
         prior = self._seen_signatures.get(signature, 0)
         self._seen_signatures[signature] = prior + 1
