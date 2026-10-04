@@ -42,6 +42,9 @@ class LocalOnlyPlaywrightBackend:
             self.page.mouse.move(float(x), float(y), steps=1)
             self.position = (int(x), int(y))
         self.page.mouse.down(button="left")
+        # Small dwell makes the local benchmark exercise a genuine held state
+        # before the next movement event arrives.
+        time.sleep(0.04)
 
     def release(self, x: int, y: int) -> None:
         self._guard()
@@ -49,6 +52,7 @@ class LocalOnlyPlaywrightBackend:
             self.page.mouse.move(float(x), float(y), steps=1)
             self.position = (int(x), int(y))
         self.page.mouse.up(button="left")
+        time.sleep(0.02)
 
     def click(self, x: int, y: int) -> None:
         self._guard()
@@ -56,4 +60,5 @@ class LocalOnlyPlaywrightBackend:
         self.page.mouse.down(button="left")
         time.sleep(0.04)
         self.page.mouse.up(button="left")
+        time.sleep(0.02)
         self.position = (int(x), int(y))
