@@ -1,3 +1,5 @@
+from typing import Optional
+
 from captcha.data_types import Action
 
 from .models import MovementPlan, Point
@@ -6,7 +8,7 @@ from .planner import MovementPlanner
 
 def action_to_movement_plan(
     action: Action,
-    planner: MovementPlanner | None = None,
+    planner: Optional[MovementPlanner] = None,
 ) -> MovementPlan:
     """Convert CaptchaMind high-level actions into benchmark movement plans."""
 
