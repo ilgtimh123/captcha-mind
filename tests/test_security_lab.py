@@ -45,11 +45,65 @@ class SecurityLabUnitTests(unittest.TestCase):
             {"kind": "down", "x": 90, "y": 10, "t": 405.0},
             {"kind": "up", "x": 90, "y": 10, "t": 445.0},
         ]
+        jittered = [dict(event) for event in motion]
+        for index, event in enumerate(jittered):
+            event["t"] = float(event["t"]) + (index % 3) * 11.0
         first = scorer.assess(motion)
-        scorer.assess(motion)
+        second = scorer.assess(jittered)
         third = scorer.assess(motion)
+        self.assertEqual(first.signature, second.signature)
+        self.assertEqual(second.signature, third.signature)
         self.assertGreaterEqual(third.score, first.score)
         self.assertTrue(any("repeated" in reason for reason in third.reasons))
+
+    def test_per_stroke_features_distinguish_mechanical_paths(self):
+        robotic = []
+        t = 0.0
+        for y in (20, 120):
+            for i in range(8):
+                robotic.append({"kind": "move", "x": 20 + i * 20, "y": y, "t": t})
+                t += 20.0
+            robotic.append({"kind": "down", "x": 160, "y": y, "t": t}); t += 40.0
+            robotic.append({"kind": "up", "x": 160, "y": y, "t": t}); t += 20.0
+
+        curved = []
+        t = 0.0
+        for offset in (0, 100):
+            for i in range(18):
+                x = 20 + i * 8
+                y = 30 + offset + int(50 * ((i / 17.0) - 0.5) ** 2)
+                curved.append({"kind": "move", "x": x, "y": y, "t": t})
+                t += 28.0 + (i % 4) * 3.0
+            curved.append({"kind": "down", "x": 156, "y": 42 + offset, "t": t}); t += 40.0
+            curved.append({"kind": "up", "x": 156, "y": 42 + offset, "t": t}); t += 20.0
+
+        robot_features = extract_motion_features(robotic)
+        curved_features = extract_motion_features(curved)
+        self.assertEqual(robot_features.stroke_count, 2)
+        self.assertGreaterEqual(robot_features.near_linear_stroke_fraction, 0.99)
+        self.assertLessEqual(robot_features.mean_stroke_points, 8.0)
+        self.assertGreater(curved_features.mean_stroke_points, robot_features.mean_stroke_points)
+        self.assertLess(curved_features.near_linear_stroke_fraction, robot_features.near_linear_stroke_fraction)
+
+        robot_risk = BotRiskScorer().assess(robotic)
+        curved_risk = BotRiskScorer().assess(curved)
+        self.assertGreater(robot_risk.score, curved_risk.score)
+
+    def test_webdriver_environment_signal_is_defender_visible(self):
+        scorer = BotRiskScorer()
+        motion = [
+            {"kind": "move", "x": i * 8, "y": 20 + i, "t": i * 45.0}
+            for i in range(10)
+        ] + [
+            {"kind": "down", "x": 72, "y": 29, "t": 420.0},
+            {"kind": "up", "x": 72, "y": 29, "t": 470.0},
+        ]
+        assessment = scorer.assess(
+            motion,
+            [{"kind": "environment", "webdriver": True, "plugin_count": 5, "language_count": 2}],
+        )
+        self.assertGreaterEqual(assessment.score, 35.0)
+        self.assertTrue(any("WebDriver" in reason for reason in assessment.reasons))
 
 
 class SecurityLabBrowserTests(unittest.TestCase):
