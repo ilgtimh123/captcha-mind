@@ -1,0 +1,29 @@
+name: Movement layer tests
+
+on:
+  push:
+    branches:
+      - feature/benchmark-movement-layer
+  pull_request:
+    paths:
+      - 'captcha/movement/**'
+      - 'tests/test_movement.py'
+      - '.github/workflows/movement-tests.yml'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install minimal dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install 'pydantic>=2,<3'
+          python -m pip install -e .
+      - name: Run movement tests
+        run: python -m unittest -v tests.test_movement
