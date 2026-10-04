@@ -44,7 +44,7 @@ class LocalWebBenchmarkEnv:
     """Run synthetic CAPTCHA-style tasks in a real browser on loopback only.
 
     The agent receives screenshots and may submit the same high-level click/drag
-    Action objects used elsewhere in CaptchaMind.  Defender telemetry is written
+    Action objects used elsewhere in CaptchaMind. Defender telemetry is written
     through a separate operator channel and is never included in observations.
     """
 
@@ -73,7 +73,14 @@ class LocalWebBenchmarkEnv:
         self.attempt_id = None
         self.trace_writer = trace_writer
         self.risk_scorer = risk_scorer or BotRiskScorer()
-        self._tmpdir = tempfile.mkdtemp(prefix="captcha_local_benchmark_")
+
+        tmp_parent = os.environ.get("CAPTCHA_LAB_TMPDIR")
+        if tmp_parent:
+            os.makedirs(tmp_parent, exist_ok=True)
+        self._tmpdir = tempfile.mkdtemp(
+            prefix="captcha_local_benchmark_",
+            dir=tmp_parent or None,
+        )
         self._shot_index = 0
 
         self.server = LocalBenchmarkServer().start()
