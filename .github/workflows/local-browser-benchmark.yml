@@ -5,14 +5,18 @@ on:
     paths:
       - 'captcha/local_benchmark/**'
       - 'captcha/movement/**'
+      - 'captcha/security_lab/**'
       - 'tests/test_local_benchmark.py'
+      - 'tests/test_security_lab.py'
       - '.github/workflows/local-browser-benchmark.yml'
   push:
     branches: [main]
     paths:
       - 'captcha/local_benchmark/**'
       - 'captcha/movement/**'
+      - 'captcha/security_lab/**'
       - 'tests/test_local_benchmark.py'
+      - 'tests/test_security_lab.py'
 
 jobs:
   test:
@@ -29,4 +33,6 @@ jobs:
           pip install pydantic playwright
           python -m playwright install --with-deps chromium
       - name: Run local benchmark tests
-        run: python -m unittest tests.test_local_benchmark -v
+        run: |
+          python -m unittest tests.test_local_benchmark -v
+          python -m unittest tests.test_security_lab -v
