@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import argparse
 import json
+import os
 import statistics
 import time
 from pathlib import Path
@@ -159,10 +160,17 @@ def run_profile(profile, challenge_type, seeds, headless=True):
     return rows
 
 
+def default_output_path():
+    artifact_root = os.environ.get("CAPTCHA_LAB_ARTIFACTS")
+    if artifact_root:
+        return str(Path(artifact_root) / "defense-batch" / "summary.json")
+    return "/tmp/captcha-security-batch/summary.json"
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--seeds", type=int, default=12)
-    ap.add_argument("--out", default="/tmp/captcha-security-batch/summary.json")
+    ap.add_argument("--out", default=default_output_path())
     args = ap.parse_args()
     seeds = list(range(args.seeds))
     all_rows = []
